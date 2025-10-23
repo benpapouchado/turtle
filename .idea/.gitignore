@@ -1,3 +1,18 @@
 # Default ignored files
 /shelf/
 /workspace.xml
+
+/.clj-kondo
+/.lsp
+
+# IntelliJ IDEA
+*.iml
+.class
+
+# Build output
+target/
+build/
+
+# OS files
+.DS_Store
+Thumbs.db
