@@ -38,7 +38,7 @@
         <SOURCES />
       </library>
     </orderEntry>
-    <orderEntry type="library" name="Maven: org.springframework.boot:spring-boot-starter-data-jpa:3.5.7" level="project" />
+    <orderEntry type="library" name="Maven: org.springframework.boot:spring-boot-starter-actuator:3.5.7" level="project" />
     <orderEntry type="library" name="Maven: org.springframework.boot:spring-boot-starter:3.5.7" level="project" />
     <orderEntry type="library" name="Maven: org.springframework.boot:spring-boot:3.5.7" level="project" />
     <orderEntry type="library" name="Maven: org.springframework.boot:spring-boot-autoconfigure:3.5.7" level="project" />
@@ -50,6 +50,19 @@
     <orderEntry type="library" name="Maven: org.slf4j:jul-to-slf4j:2.0.17" level="project" />
     <orderEntry type="library" name="Maven: jakarta.annotation:jakarta.annotation-api:2.1.1" level="project" />
     <orderEntry type="library" name="Maven: org.yaml:snakeyaml:2.4" level="project" />
+    <orderEntry type="library" name="Maven: org.springframework.boot:spring-boot-actuator-autoconfigure:3.5.7" level="project" />
+    <orderEntry type="library" name="Maven: org.springframework.boot:spring-boot-actuator:3.5.7" level="project" />
+    <orderEntry type="library" name="Maven: com.fasterxml.jackson.core:jackson-databind:2.19.2" level="project" />
+    <orderEntry type="library" name="Maven: com.fasterxml.jackson.core:jackson-annotations:2.19.2" level="project" />
+    <orderEntry type="library" name="Maven: com.fasterxml.jackson.core:jackson-core:2.19.2" level="project" />
+    <orderEntry type="library" name="Maven: com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.19.2" level="project" />
+    <orderEntry type="library" name="Maven: io.micrometer:micrometer-observation:1.15.5" level="project" />
+    <orderEntry type="library" name="Maven: io.micrometer:micrometer-commons:1.15.5" level="project" />
+    <orderEntry type="library" name="Maven: io.micrometer:micrometer-jakarta9:1.15.5" level="project" />
+    <orderEntry type="library" name="Maven: io.micrometer:micrometer-core:1.15.5" level="project" />
+    <orderEntry type="library" scope="RUNTIME" name="Maven: org.hdrhistogram:HdrHistogram:2.2.2" level="project" />
+    <orderEntry type="library" scope="RUNTIME" name="Maven: org.latencyutils:LatencyUtils:2.0.3" level="project" />
+    <orderEntry type="library" name="Maven: org.springframework.boot:spring-boot-starter-data-jpa:3.5.7" level="project" />
     <orderEntry type="library" name="Maven: org.springframework.boot:spring-boot-starter-jdbc:3.5.7" level="project" />
     <orderEntry type="library" name="Maven: com.zaxxer:HikariCP:6.3.3" level="project" />
     <orderEntry type="library" name="Maven: org.springframework:spring-jdbc:6.2.12" level="project" />
@@ -80,19 +93,13 @@
     <orderEntry type="library" name="Maven: org.aspectj:aspectjweaver:1.9.24" level="project" />
     <orderEntry type="library" name="Maven: org.springframework.boot:spring-boot-starter-web:3.5.7" level="project" />
     <orderEntry type="library" name="Maven: org.springframework.boot:spring-boot-starter-json:3.5.7" level="project" />
-    <orderEntry type="library" name="Maven: com.fasterxml.jackson.core:jackson-databind:2.19.2" level="project" />
-    <orderEntry type="library" name="Maven: com.fasterxml.jackson.core:jackson-annotations:2.19.2" level="project" />
-    <orderEntry type="library" name="Maven: com.fasterxml.jackson.core:jackson-core:2.19.2" level="project" />
     <orderEntry type="library" name="Maven: com.fasterxml.jackson.datatype:jackson-datatype-jdk8:2.19.2" level="project" />
-    <orderEntry type="library" name="Maven: com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.19.2" level="project" />
     <orderEntry type="library" name="Maven: com.fasterxml.jackson.module:jackson-module-parameter-names:2.19.2" level="project" />
     <orderEntry type="library" name="Maven: org.springframework.boot:spring-boot-starter-tomcat:3.5.7" level="project" />
     <orderEntry type="library" name="Maven: org.apache.tomcat.embed:tomcat-embed-core:10.1.48" level="project" />
     <orderEntry type="library" name="Maven: org.apache.tomcat.embed:tomcat-embed-el:10.1.48" level="project" />
     <orderEntry type="library" name="Maven: org.apache.tomcat.embed:tomcat-embed-websocket:10.1.48" level="project" />
     <orderEntry type="library" name="Maven: org.springframework:spring-web:6.2.12" level="project" />
-    <orderEntry type="library" name="Maven: io.micrometer:micrometer-observation:1.15.5" level="project" />
-    <orderEntry type="library" name="Maven: io.micrometer:micrometer-commons:1.15.5" level="project" />
     <orderEntry type="library" name="Maven: org.springframework:spring-webmvc:6.2.12" level="project" />
     <orderEntry type="library" name="Maven: org.springframework:spring-expression:6.2.12" level="project" />
     <orderEntry type="library" scope="RUNTIME" name="Maven: org.postgresql:postgresql:42.7.8" level="project" />
@@ -127,5 +134,6 @@
     <orderEntry type="library" name="Maven: org.springframework:spring-jcl:6.2.12" level="project" />
     <orderEntry type="library" scope="TEST" name="Maven: org.springframework:spring-test:6.2.12" level="project" />
     <orderEntry type="library" scope="TEST" name="Maven: org.xmlunit:xmlunit-core:2.10.4" level="project" />
+    <orderEntry type="library" name="Maven: org.projectlombok:lombok:1.18.42" level="project" />
   </component>
 </module>
