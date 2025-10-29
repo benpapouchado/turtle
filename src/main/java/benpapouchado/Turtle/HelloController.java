@@ -7,9 +7,7 @@ import org.springframework.web.bind.annotation.*;
 import benpapouchado.Turtle.Login.UserDetails;
 import benpapouchado.Turtle.Login.UserDetailsRepository;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 @RestController
 @RequestMapping("/users")
@@ -31,9 +29,11 @@ public class HelloController {
   }
 
   @GetMapping("/username-exists/{username}")
-  public boolean usernameTaken(@PathVariable String username){
+  public Map<String, Boolean> usernameTaken(@PathVariable String username){
         int count = this.userDetailsRepository.usernameExists(username);
-        return count > 0;
+        Map<String, Boolean> exists = new HashMap<>();
+        exists.put("username-exists", count > 0);
+        return exists;
   }
 
   @PostMapping("/account-created")
