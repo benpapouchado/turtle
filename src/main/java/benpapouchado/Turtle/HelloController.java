@@ -1,7 +1,8 @@
 package benpapouchado.Turtle;
 
-import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.query.Param;
+import jakarta.annotation.PostConstruct;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.web.bind.annotation.*;
 
 import benpapouchado.Turtle.Login.UserDetails;
@@ -20,24 +21,24 @@ public class HelloController {
     private final UserDetailsRepository userDetailsRepository;
 
     public HelloController(UserDetailsRepository userDetailsRepository) {
-    this.userDetailsRepository = userDetailsRepository;
+        this.userDetailsRepository = userDetailsRepository;
     }
 
     @GetMapping("/people")
     public List<UserDetails> findAllUsers() {
-    return this.userDetailsRepository.findAll();
-  }
+        return this.userDetailsRepository.findAll();
+    }
 
-  @GetMapping("/username-exists/{username}")
-  public Map<String, Boolean> usernameTaken(@PathVariable String username){
-        int count = this.userDetailsRepository.usernameExists(username);
-        Map<String, Boolean> exists = new HashMap<>();
-        exists.put("username-exists", count > 0);
-        return exists;
-  }
+    @GetMapping("/username-exists/{username}")
+    public Map<String, Boolean> usernameTaken(@PathVariable String username) {
+        int count = userDetailsRepository.usernameExists(username);
+        return Map.of("taken", count > 0);
+    }
 
-  @PostMapping("/account-created")
-  public void accountCreated(@RequestBody UserDetails extraUserDetails){
-        this.userDetailsRepository.save(extraUserDetails);
-  }
+    @PostMapping("/create-account")
+    public Map<String, Integer> accountCreated(@RequestBody UserDetails userDetails) {
+        userDetailsRepository.save(userDetails);
+        return Map.of("status", 200);
+    }
+
 }

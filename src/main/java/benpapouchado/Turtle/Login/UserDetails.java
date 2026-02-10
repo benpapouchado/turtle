@@ -7,12 +7,19 @@ import lombok.Setter;
 @Entity
 @Getter
 @Setter
-@Table(name = "Frog_Account_Details", schema = "public")
+@Table(name = "frog_account_details", schema = "public")
 public class UserDetails {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
     private int ID;
+
+    @Column(name = "firstname")
+    private String firstname;
+
+    @Column(name = "lastname")
+    private String lastname;
 
     @Column(name = "username")
     private String username;
@@ -25,33 +32,31 @@ public class UserDetails {
 
     @Column(name = "date_of_birth")
     private String dob;
-//    private String createdAt;
-//    private String lastLogin;
-//    private String firstname;
-//    private String surname;
 
     public UserDetails() {
     }
 
-    public UserDetails(int ID, String username, String password, String email, String dob){
-    //, String createdAt, String lastLogin, String firstname, String surname) {
-        this.ID = ID;
+    public UserDetails(String firstname, String lastname, String username, String password, String email, String dob) {
+        this.firstname = firstname;
+        this.lastname = lastname;
         this.username = username;
         this.password = password;
         this.email = email;
         this.dob = dob;
-//        this.createdAt = createdAt;
-//        this.lastLogin = lastLogin;
-//        this.firstname = firstname;
-//        this.surname = surname;
     }
 
-    public int getID() {
-        return ID;
+    public String getFirstname() {
+        return firstname;
     }
 
-    public void setID(int ID) {
-        this.ID = ID;
+    public void setFirstname(String firstname) {
+        this.firstname = firstname;
+    }
+
+    public String getLastname() { return lastname; }
+
+    public void setLastname(String lastname) {
+        this.lastname = lastname;
     }
 
     public String getUsername() {
@@ -86,35 +91,4 @@ public class UserDetails {
         this.dob = dob;
     }
 
-//    public String getCreatedAt() {
-//        return createdAt;
-//    }
-//
-//    public void setCreatedAt(String createdAt) {
-//        this.createdAt = createdAt;
-//    }
-//
-//    public String getLastLogin() {
-//        return lastLogin;
-//    }
-//
-//    public void setLastLogin(String lastLogin) {
-//        this.lastLogin = lastLogin;
-//    }
-//
-//    public String getFirstname() {
-//        return firstname;
-//    }
-//
-//    public void setFirstname(String firstname) {
-//        this.firstname = firstname;
-//    }
-//
-//    public String getSurname() {
-//        return surname;
-//    }
-//
-//    public void setSurname(String surname) {
-//        this.surname = surname;
-//    }
 }

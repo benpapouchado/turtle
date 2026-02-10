@@ -34,26 +34,95 @@
   <component name="DBNavigator.Project.DatabaseBrowserManager">
     <autoscroll-to-editor value="false" />
     <autoscroll-from-editor value="true" />
-    <show-object-properties value="true" />
+    <show-object-properties value="false" />
     <loaded-nodes>
       <connection connection-id="c4db3b3b-7332-487e-85db-63ab51bb3561">
-        <schema name="public" object-types="table, view, function" />
+        <schema name="information_schema" object-types="table, view, sequence, function, column" />
+        <schema name="pg_catalog" object-types="table, view, sequence, function, constraint, column, dataset trigger" />
+        <schema name="pg_toast" object-types="table, view, sequence, function" />
+        <schema name="public" object-types="table, view, sequence, function, constraint, index, column, dataset trigger" />
       </connection>
     </loaded-nodes>
   </component>
   <component name="DBNavigator.Project.DatabaseConsoleManager">
     <connection id="c4db3b3b-7332-487e-85db-63ab51bb3561">
-      <console name="Connection" type="STANDARD" schema="public" session="Main"><![CDATA[SELECT * FROM USER_DETAILS;]]></console>
+      <console name="Connection" type="STANDARD" schema="public" session="Main"><![CDATA[SELECT
+    column_name,
+    data_type,
+    character_maximum_length,
+    is_nullable
+FROM information_schema.columns
+WHERE table_schema = 'public'
+  AND table_name = 'user_details';
+  
+create table account_details (
+id SERIAL primary key,
+username varchar(255) not null,
+password varchar(255) not null,
+email varchar(255) not null, 
+date_of_birth date
+);
+  
+SELECT * FROM account_details;  
+  
+INSERT into user_details values(
+'benpapouchado', 'F349jgxn*', 'benpapouchado@yahoo.com', '1994-05-27', '2025-10-23 13:45:00', '2025-10-23 13:45:00',
+'Ben', 'Papouchado');
+
+INSERT into Frog_Account_Details values(
+default, 'benpapouchado', 'F349jgxn*', 'benpapouchado@yahoo.com', '1994-05-27');
+
+SELECT * FROM account_details;
+
+select schemaname,relname from pg_stat_user_tables;]]></console>
+      <console name="Connection 1" type="STANDARD" schema="public" session="Main"><![CDATA[select * from account_details;
+
+drop table account_details;
+
+create table Frog_Account_Details (
+id serial not null,
+ username varchar(255) not null,
+  password varchar(255) not null,
+   email varchar(255) not null,
+    date_of_birth date);
+    
+    CREATE TABLE Frog (
+    ID int,
+    Username varchar(255),
+    Password varchar(255),
+    Email varchar(255),
+    DOB varchar(255)
+);
+
+CREATE TABLE Account_Details (
+    PersonID int,
+    LastName varchar(255),
+    FirstName varchar(255),
+    Address varchar(255),
+    City varchar(255)
+);]]></console>
     </connection>
   </component>
   <component name="DBNavigator.Project.DatabaseEditorStateManager">
     <last-used-providers />
   </component>
   <component name="DBNavigator.Project.DatabaseFileManager">
-    <open-files />
+    <open-files>
+      <object connection-id="c4db3b3b-7332-487e-85db-63ab51bb3561" object-ref="consoles/Connection 1" />
+    </open-files>
   </component>
   <component name="DBNavigator.Project.DatabaseSessionManager">
     <connection id="c4db3b3b-7332-487e-85db-63ab51bb3561" />
+  </component>
+  <component name="DBNavigator.Project.DatasetFilterManager">
+    <filter-actions connection-id="c4db3b3b-7332-487e-85db-63ab51bb3561" dataset="public.user_details" active-filter-id="127751c3-9ce3-4df6-8493-85779df17d57">
+      <filter id="127751c3-9ce3-4df6-8493-85779df17d57" name="account_details" temporary="false" custom-name="true" type="basic" join-type="AND">
+        <condition column="first_name" operator="=" value="&quot;ben papouchado" active="true" />
+      </filter>
+      <filter id="729a29dc-1c46-4dd2-a4ca-0023f52b710b" name="Filter 1" temporary="false" custom-name="false" type="basic" join-type="AND">
+        <condition column="user_id" operator="=" value="" active="true" />
+      </filter>
+    </filter-actions>
   </component>
   <component name="DBNavigator.Project.EditorStateManager">
     <last-used-providers />

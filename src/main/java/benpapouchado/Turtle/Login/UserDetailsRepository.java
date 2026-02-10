@@ -7,7 +7,11 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 public interface UserDetailsRepository extends JpaRepository<UserDetails, Integer> {
 
-    @Query("Select count(row) from UserDetails row where row.username = :username")
-    int usernameExists(@RequestParam("username") String username);
+    @Query("""
+            SELECT COUNT(u)
+            FROM UserDetails u
+            WHERE LOWER(u.username) = LOWER(:username)
+            """)
+    int usernameExists(@Param("username") String username);
 
 }
