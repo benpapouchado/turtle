@@ -33,9 +33,23 @@ public class LoginController {
   }
 
   @PostMapping("/create-account")
-  public Map<String, Integer> accountCreated(@RequestBody UserDetails userDetails) {
+  public Map<String, String> accountCreated(@RequestBody UserDetails userDetails) {
     userDetailsRepository.save(userDetails);
-    return Map.of("status", 200);
+    return Map.of("status", "200",
+            "message", "Account successfully created");
   }
 
+  @PostMapping("/login")
+  public Map<String, String> createNewSession(@RequestBody String username, @RequestBody String password){
+    int id = userDetailsRepository.login(username, password);
+
+    if (id != 0) {
+      return Map.of("status", "200",
+              "message", "Successful login");
+    } else {
+      return Map.of("status", "401",
+              "message", "Unauthorized status code");
+    }
+  }
+//TODO introduce hashing so password is not stored in plain text
 }
