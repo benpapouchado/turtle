@@ -49,9 +49,7 @@ public class LoginController {
         } else {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(
                     Map.of("status", "401",
-                    "message", "Unauthorised login info",
-                    "username", login.getUsername(),
-                    "password", login.getPassword()));
+                            "message", "Unauthorised login info"));
         }
     }
 //TODO introduce hashing so password is not stored in plain text
