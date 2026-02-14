@@ -1,55 +1,58 @@
 package benpapouchado.Turtle.Login;
 
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import benpapouchado.Turtle.Login.UserDetails;
-import benpapouchado.Turtle.Login.UserDetailsRepository;
 
 import java.util.*;
 
 @RestController
 @RequestMapping("/users")
 public class LoginController {
-  @GetMapping("/health")
-  public String index() {
-    return "Looks good!";
-  }
-
-  private final UserDetailsRepository userDetailsRepository;
-
-  public LoginController(UserDetailsRepository userDetailsRepository) {
-    this.userDetailsRepository = userDetailsRepository;
-  }
-
-  @GetMapping("/people")
-  public List<UserDetails> findAllUsers() {
-    return this.userDetailsRepository.findAll();
-  }
-
-  @GetMapping("/username-exists/{username}")
-  public Map<String, Boolean> usernameTaken(@PathVariable String username) {
-    int count = userDetailsRepository.usernameExists(username);
-    return Map.of("taken", count > 0);
-  }
-
-  @PostMapping("/create-account")
-  public Map<String, String> accountCreated(@RequestBody UserDetails userDetails) {
-    userDetailsRepository.save(userDetails);
-    return Map.of("status", "200",
-            "message", "Account successfully created");
-  }
-
-  @PostMapping("/login")
-  public Map<String, String> createNewSession(@RequestBody String username, @RequestBody String password){
-    int id = userDetailsRepository.login(username, password);
-
-    if (id != 0) {
-      return Map.of("status", "200",
-              "message", "Successful login");
-    } else {
-      return Map.of("status", "401",
-              "message", "Unauthorized status code");
+    @GetMapping("/health")
+    public String index() {
+        return "Looks good!";
     }
-  }
+
+    private final UserDetailsRepository userDetailsRepository;
+
+    public LoginController(UserDetailsRepository userDetailsRepository) {
+        this.userDetailsRepository = userDetailsRepository;
+    }
+
+    @GetMapping("/people")
+    public List<UserDetails> findAllUsers() {
+        return this.userDetailsRepository.findAll();
+    }
+
+    @GetMapping("/username-exists/{username}")
+    public ResponseEntity<Map<String, Boolean>> usernameTaken(@PathVariable String username) {
+        int count = userDetailsRepository.usernameExists(username);
+        return ResponseEntity.ok(Map.of("taken", count > 0));
+    }
+
+    @PostMapping("/create-account")
+    public ResponseEntity<Map<String, String>> accountCreated(@RequestBody UserDetails userDetails) {
+        userDetailsRepository.save(userDetails);
+        return ResponseEntity.ok(Map.of("status", "200",
+                "message", "Account successfully created"));
+    }
+
+    @PostMapping("/login")
+    public ResponseEntity<Map<String, String>> authenicateUserDetails(@RequestBody Login login) {
+        UserDetails user = userDetailsRepository.findUserByUsername(login.getUsername().trim());
+
+        if (user != null &&
+                login.getPassword().trim().equals(user.getPassword().trim())) {
+            return ResponseEntity.ok(Map.of("status", "200",
+                    "message", "Successful login"));
+        } else {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(
+                    Map.of("status", "401",
+                    "message", "Unauthorised login info",
+                    "username", login.getUsername(),
+                    "password", login.getPassword()));
+        }
+    }
 //TODO introduce hashing so password is not stored in plain text
 }

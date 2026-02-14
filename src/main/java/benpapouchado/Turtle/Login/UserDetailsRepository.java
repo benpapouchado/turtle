@@ -13,11 +13,5 @@ public interface UserDetailsRepository extends JpaRepository<UserDetails, Intege
             """)
     int usernameExists(@Param("username") String username);
 
-    @Query("""
-            SELECT id
-            FROM UserDetails u
-            WHERE LOWER(u.username) = LOWER(:username)
-            AND LOWER(u.password) = LOWER(:password)
-            """)
-    int login(@Param("username") String username, @Param("password") String password);
+    UserDetails findUserByUsername(String username);
 }
