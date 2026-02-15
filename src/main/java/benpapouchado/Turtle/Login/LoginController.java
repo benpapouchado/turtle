@@ -2,10 +2,10 @@ package benpapouchado.Turtle.Login;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.*;
+import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/users")
@@ -34,8 +34,9 @@ public class LoginController {
 
     @PostMapping("/create-account")
     public ResponseEntity<Map<String, String>> accountCreated(@RequestBody UserDetails userDetails) {
-        System.out.println(userDetails);
-        if(userDetails != null) {
+
+
+        if (userDetails.getUsername() != null || userDetails.getPassword() != null) {
             userDetailsRepository.save(userDetails);
             return ResponseEntity.ok(Map.of("message", "Account successfully created"));
         } else {
