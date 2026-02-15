@@ -27,17 +27,6 @@ public class UserDetails {
     @Column(name = "password_hash", nullable = false)
     private String password_hash; //add hashing
 
-    @Override
-    public String toString() {
-        return "UserDetails{" +
-                "ID=" + ID +
-                ", name='" + name + '\'' +
-                ", username='" + username + '\'' +
-                ", password_hash='" + password_hash + '\'' +
-                ", date_of_birth=" + date_of_birth +
-                '}';
-    }
-
     @Column(name = "date_of_birth")
     private Date date_of_birth;
 
