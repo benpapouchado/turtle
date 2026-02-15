@@ -4,10 +4,12 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.sql.Date;
+
 @Entity
 @Getter
 @Setter
-@Table(name = "frog_account_details", schema = "public")
+@Table(name = "frog_details", schema = "public")
 public class UserDetails {
 
     @Id
@@ -15,48 +17,35 @@ public class UserDetails {
     @Column(name = "id")
     private int ID;
 
-    @Column(name = "firstname")
-    private String firstname;
+    @Column(name = "name")
+    private String name;
 
-    @Column(name = "lastname")
-    private String lastname;
-
-    @Column(name = "username")
+    @Column(name = "username", unique = true, nullable = false)
     private String username;
 
-    @Column(name = "password")
-    private String password; //add hashing
-
-    @Column(name = "email")
-    private String email;
+    @Column(name = "password_hash", nullable = false)
+    private String password_hash; //add hashing
 
     @Column(name = "date_of_birth")
-    private String dob;
+    private Date dob;
 
-    public UserDetails() {
-    }
+    @Column(nullable = true)
+    private String salt;
 
-    public UserDetails(String firstname, String lastname, String username, String password, String email, String dob) {
-        this.firstname = firstname;
-        this.lastname = lastname;
+
+    public UserDetails(String name, String username, String password_hash, Date dob) {
+        this.name = name;
         this.username = username;
-        this.password = password;
-        this.email = email;
+        this.password_hash = password_hash;
         this.dob = dob;
     }
 
-    public String getFirstname() {
-        return firstname;
+    public String getName() {
+        return name;
     }
 
-    public void setFirstname(String firstname) {
-        this.firstname = firstname;
-    }
-
-    public String getLastname() { return lastname; }
-
-    public void setLastname(String lastname) {
-        this.lastname = lastname;
+    public void setName(String firstname) {
+        this.name = name;
     }
 
     public String getUsername() {
@@ -68,27 +57,19 @@ public class UserDetails {
     }
 
     public String getPassword() {
-        return password;
+        return password_hash;
     }
 
-    public void setPassword(String password) {
-        this.password = password;
+    public void setPassword(String password_hash) {
+        this.password_hash = password_hash;
     }
 
-    public String getEmail() {
-        return email;
-    }
-
-    public void setEmail(String email) {
-        this.email = email;
-    }
-
-    public String getDob() {
+    public Date getDob() {
         return dob;
     }
 
     public void setDob(String dob) {
-        this.dob = dob;
+        this.dob = Date.valueOf(dob);
     }
 
 }
