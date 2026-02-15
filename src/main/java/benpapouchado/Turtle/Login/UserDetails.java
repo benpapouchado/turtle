@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.math.BigInteger;
 import java.sql.Date;
 
 @Entity
@@ -14,8 +15,8 @@ public class UserDetails {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id")
-    private int ID;
+    @Column(name = "id", columnDefinition = "serial")
+    private BigInteger ID;
 
     @Column(name = "name")
     private String name;
@@ -26,19 +27,28 @@ public class UserDetails {
     @Column(name = "password_hash", nullable = false)
     private String password_hash; //add hashing
 
+    @Override
+    public String toString() {
+        return "UserDetails{" +
+                "ID=" + ID +
+                ", name='" + name + '\'' +
+                ", username='" + username + '\'' +
+                ", password_hash='" + password_hash + '\'' +
+                ", date_of_birth=" + date_of_birth +
+                '}';
+    }
+
     @Column(name = "date_of_birth")
-    private Date dob;
+    private Date date_of_birth;
 
-    @Column(nullable = true)
-    private String salt;
-
-
-    public UserDetails(String name, String username, String password_hash, Date dob) {
+    public UserDetails(String name, String username, String password_hash, Date date_of_birth) {
         this.name = name;
         this.username = username;
         this.password_hash = password_hash;
-        this.dob = dob;
+        this.date_of_birth = date_of_birth;
     }
+
+    public UserDetails(){}
 
     public String getName() {
         return name;
@@ -64,12 +74,12 @@ public class UserDetails {
         this.password_hash = password_hash;
     }
 
-    public Date getDob() {
-        return dob;
+    public Date getDate_of_birth() {
+        return date_of_birth;
     }
 
-    public void setDob(String dob) {
-        this.dob = Date.valueOf(dob);
+    public void setDate_of_birth(String date_of_birth) {
+        this.date_of_birth = Date.valueOf(date_of_birth);
     }
 
 }

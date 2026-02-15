@@ -2,6 +2,7 @@ package benpapouchado.Turtle.Login;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.*;
@@ -33,15 +34,20 @@ public class LoginController {
 
     @PostMapping("/create-account")
     public ResponseEntity<Map<String, String>> accountCreated(@RequestBody UserDetails userDetails) {
-        userDetailsRepository.save(userDetails);
-        return ResponseEntity.ok(Map.of("status", "200",
-                "message", "Account successfully created"));
+        System.out.println(userDetails);
+        if(userDetails != null) {
+            userDetailsRepository.save(userDetails);
+            return ResponseEntity.ok(Map.of("status", "200",
+                    "message", "Account successfully created"));
+        } else {
+            return ResponseEntity.ok(Map.of("status", "400",
+                    "message", "Account creation failed"));
+        }
     }
 
     @PostMapping("/login")
     public ResponseEntity<Map<String, String>> authenicateUserDetails(@RequestBody Login login) {
         UserDetails user = userDetailsRepository.findUserByUsername(login.getUsername().trim());
-
         if (user != null &&
                 login.getPassword().trim().equals(user.getPassword().trim())) {
             return ResponseEntity.ok(Map.of("status", "200",
