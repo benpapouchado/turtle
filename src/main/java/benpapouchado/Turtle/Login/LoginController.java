@@ -29,7 +29,7 @@ public class LoginController {
     @GetMapping("/username-exists/{username}")
     public ResponseEntity<Map<String, Boolean>> usernameTaken(@PathVariable String username) {
         int count = userDetailsRepository.usernameExists(username);
-        return ResponseEntity.ok(Map.of("taken", count > 0));
+        return ResponseEntity.ok(Map.of("is_available", count == 0));
     }
 
     @PostMapping("/create-account")
@@ -37,25 +37,21 @@ public class LoginController {
         System.out.println(userDetails);
         if(userDetails != null) {
             userDetailsRepository.save(userDetails);
-            return ResponseEntity.ok(Map.of("status", "200",
-                    "message", "Account successfully created"));
+            return ResponseEntity.ok(Map.of("message", "Account successfully created"));
         } else {
-            return ResponseEntity.ok(Map.of("status", "400",
-                    "message", "Account creation failed"));
+            return ResponseEntity.ok(Map.of("message", "Account creation failed"));
         }
     }
 
     @PostMapping("/login")
-    public ResponseEntity<Map<String, String>> authenicateUserDetails(@RequestBody Login login) {
+    public ResponseEntity<Map<String, String>> authenticateUserDetails(@RequestBody Login login) {
         UserDetails user = userDetailsRepository.findUserByUsername(login.getUsername().trim());
         if (user != null &&
                 login.getPassword().trim().equals(user.getPassword().trim())) {
-            return ResponseEntity.ok(Map.of("status", "200",
-                    "message", "Successful login"));
+            return ResponseEntity.ok(Map.of("message", "Successful login"));
         } else {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(
-                    Map.of("status", "401",
-                            "message", "Unauthorised login info"));
+                    Map.of("message", "Unauthorised login info"));
         }
     }
 //TODO introduce hashing so password is not stored in plain text
