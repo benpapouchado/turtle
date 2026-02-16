@@ -68,4 +68,30 @@ public class LoginController {
                     Map.of("message", "Unauthorised login info"));
         }
     }
+
+    @GetMapping("/update-password-request")
+    public ResponseEntity<Map<String, String>> updatePasswordRequest(@RequestBody ForgotPassword forgotPassword)
+            throws Exception {
+        if (forgotPassword != null) {
+            UserDetails user = userDetailsRepository.findUserByUsername(forgotPassword.getUsername());
+            if (user != null && forgotPassword.confirmPasswordsMatch() &&
+                    PasswordHandling.isStrongPassword(forgotPassword.getPassword())) {
+                return ResponseEntity.ok(Map.of("message", "Please deliver code",
+                        "code", "7391"));
+            }
+        }
+        return ResponseEntity.ok(Map.of("message", "Password update failed."));
+    }
+
+    @PostMapping("/update-password/{code}")
+    public ResponseEntity<Map<String, String>> updatePassword(@PathVariable String code,
+                                                              @RequestBody ForgotPassword forgotPassword) {
+        if (code != null) {
+            if (Integer.parseInt(code) == 7391) {
+                userDetailsRepository.updatePassword(forgotPassword.getUsername(), forgotPassword.getPassword());
+                return ResponseEntity.ok(Map.of("message", "Password updated successfully"));
+            }
+        }
+        return ResponseEntity.ok(Map.of("message", "Password update failed."));
+    }
 }

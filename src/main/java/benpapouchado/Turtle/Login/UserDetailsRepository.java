@@ -14,4 +14,11 @@ public interface UserDetailsRepository extends JpaRepository<UserDetails, Intege
     int usernameExists(@Param("username") String username);
 
     UserDetails findUserByUsername(String username);
+
+    @Query("""
+            UPDATE UserDetails u
+            SET u.password_hash = :newPasswordHash
+            WHERE u.username = :username
+            """)
+    void updatePassword(@Param("username") String username, @Param("password_hash") String password);
 }
