@@ -36,6 +36,16 @@ public class LoginController {
         }
     }
 
+    @GetMapping("/password-is-strong/{password}")
+    public ResponseEntity<Map<String, String>> passwordStrongEnough(@PathVariable String password) {
+        if(password == null){
+            return ResponseEntity.ok(Map.of("message", "Password check cannot pass null values"));
+        } else {
+            boolean password_strength = PasswordHandling.isStrongPassword(password);
+            return ResponseEntity.ok(Map.of("password_is_strong", password_strength ? "true" : "false"));
+        }
+    }
+
     @PostMapping("/create-account")
     public ResponseEntity<Map<String, String>> accountCreated(@RequestBody UserDetails userDetails) throws Exception {
         if (userDetails.getUsername() != null || userDetails.getPasswordHash() != null) {

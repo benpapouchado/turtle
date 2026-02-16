@@ -53,6 +53,14 @@ public class PasswordHandling {
             diff |= a[i] ^ b[i];
         return diff == 0;
     }
+
+    public static boolean isStrongPassword(String password) {
+        return password.length() >= 8 &&
+                password.matches(".*[A-Z].*") &&
+                password.matches(".*[a-z].*") &&
+                password.matches(".*\\d.*") &&
+                password.matches(".*[^a-zA-Z0-9].*");
+    }
 }
 
 //TODO write unit tests

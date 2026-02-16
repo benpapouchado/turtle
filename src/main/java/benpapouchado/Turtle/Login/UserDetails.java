@@ -25,7 +25,7 @@ public class UserDetails {
     private String username;
 
     @Column(name = "password_hash", nullable = false)
-    private String password_hash; //add hashing
+    private String password_hash;
 
     @Column(name = "date_of_birth")
     private Date date_of_birth;
