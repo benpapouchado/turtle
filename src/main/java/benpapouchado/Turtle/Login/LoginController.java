@@ -37,8 +37,9 @@ public class LoginController {
     }
 
     @PostMapping("/create-account")
-    public ResponseEntity<Map<String, String>> accountCreated(@RequestBody UserDetails userDetails) {
-        if (userDetails.getUsername() != null || userDetails.getPassword() != null) {
+    public ResponseEntity<Map<String, String>> accountCreated(@RequestBody UserDetails userDetails) throws Exception {
+        if (userDetails.getUsername() != null || userDetails.getPasswordHash() != null) {
+            userDetails.setPassword_hash(PasswordHandling.hashPassword(userDetails.getPasswordHash()));
             userDetailsRepository.save(userDetails);
             return ResponseEntity.ok(Map.of("message", "Account successfully created"));
         } else {
@@ -47,15 +48,14 @@ public class LoginController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<Map<String, String>> authenticateUserDetails(@RequestBody Login login) {
+    public ResponseEntity<Map<String, String>> authenticateUserDetails(@RequestBody Login login) throws Exception {
         UserDetails user = userDetailsRepository.findUserByUsername(login.getUsername().trim());
         if (user != null &&
-                login.getPassword().trim().equals(user.getPassword().trim())) {
+                PasswordHandling.verifyPassword(login.getPassword(), user.getPassword_hash())) {
             return ResponseEntity.ok(Map.of("message", "Successful login"));
         } else {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(
                     Map.of("message", "Unauthorised login info"));
         }
     }
-//TODO introduce hashing so password is not stored in plain text
 }

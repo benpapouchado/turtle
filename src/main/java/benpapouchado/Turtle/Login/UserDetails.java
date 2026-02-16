@@ -43,7 +43,7 @@ public class UserDetails {
         return name;
     }
 
-    public void setName(String firstname) {
+    public void setName(String name) {
         this.name = name;
     }
 
@@ -55,7 +55,7 @@ public class UserDetails {
         this.username = username;
     }
 
-    public String getPassword() {
+    public String getPasswordHash() {
         return password_hash;
     }
 

@@ -1,41 +1,58 @@
 package benpapouchado.Turtle.Login;
 
-import javax.crypto.SecretKeyFactory;
-import javax.crypto.spec.PBEKeySpec;
 import java.security.SecureRandom;
 import java.security.spec.KeySpec;
 import java.util.Base64;
+import javax.crypto.SecretKeyFactory;
+import javax.crypto.spec.PBEKeySpec;
 
 public class PasswordHandling {
+
+    //vibe coded this one since spring security framework would not work
+
+    private static final int ITERATIONS = 65536;
+    private static final int KEY_LENGTH = 256;
+    private static final int SALT_LENGTH = 16;
+
     public static String hashPassword(String password) throws Exception {
 
-        // Securely generate a random salt
         SecureRandom random = new SecureRandom();
-        byte[] salt = new byte[16];
+        byte[] salt = new byte[SALT_LENGTH];
         random.nextBytes(salt);
 
-        return hashPasswordWithSalt(password, salt);
+        byte[] hash = pbkdf2(password, salt);
+
+        return ITERATIONS + ":" +
+                Base64.getEncoder().encodeToString(salt) + ":" +
+                Base64.getEncoder().encodeToString(hash);
     }
 
-    public static String hashPasswordWithSalt(String password, byte[] salt) throws Exception {
-
-        // Set realistic values for parameters
-        int iterationCount = 65536; // How many iterations to use
-        int keyLength = 256; // Derived key length
-
-        KeySpec spec = new PBEKeySpec(password.toCharArray(), salt, iterationCount, keyLength);
+    private static byte[] pbkdf2(String password, byte[] salt) throws Exception {
+        KeySpec spec = new PBEKeySpec(password.toCharArray(), salt, ITERATIONS, KEY_LENGTH);
         SecretKeyFactory factory = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA256");
-
-        byte[] hash = factory.generateSecret(spec).getEncoded();
-        return Base64.getEncoder().encodeToString(hash);
+        return factory.generateSecret(spec).getEncoded();
     }
 
-    public static boolean verifyPassword(String inputPassword, String storedHash, byte[] salt) throws Exception {
-        String newHash = hashPasswordWithSalt(inputPassword, salt);
-        return newHash.equals(storedHash);
+    public static boolean verifyPassword(String password, String storedValue) throws Exception {
+
+        String[] parts = storedValue.split(":");
+        int iterations = Integer.parseInt(parts[0]);
+        byte[] salt = Base64.getDecoder().decode(parts[1]);
+        byte[] storedHash = Base64.getDecoder().decode(parts[2]);
+
+        KeySpec spec = new PBEKeySpec(password.toCharArray(), salt, iterations, KEY_LENGTH);
+        SecretKeyFactory factory = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA256");
+        byte[] newHash = factory.generateSecret(spec).getEncoded();
+
+        return slowEquals(storedHash, newHash);
     }
-    public static void main(String[] args) throws Exception{
-        System.out.println(hashPassword("fudge"));
-        System.out.println(hashPassword("fudge"));
+
+    private static boolean slowEquals(byte[] a, byte[] b) {
+        int diff = a.length ^ b.length;
+        for (int i = 0; i < a.length && i < b.length; i++)
+            diff |= a[i] ^ b[i];
+        return diff == 0;
     }
 }
+
+//TODO write unit tests
