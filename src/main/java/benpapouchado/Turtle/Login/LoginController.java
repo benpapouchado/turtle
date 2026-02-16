@@ -27,15 +27,17 @@ public class LoginController {
     }
 
     @GetMapping("/username-exists/{username}")
-    public ResponseEntity<Map<String, Boolean>> usernameTaken(@PathVariable String username) {
-        int count = userDetailsRepository.usernameExists(username);
-        return ResponseEntity.ok(Map.of("is_available", count == 0));
+    public ResponseEntity<Map<String, String>> usernameTaken(@PathVariable String username) {
+        if(username == null){
+            return ResponseEntity.ok(Map.of("message", "Username check cannot pass null values"));
+        } else {
+            int count = userDetailsRepository.usernameExists(username);
+            return ResponseEntity.ok(Map.of("is_available", count == 0 ? "true" : "false"));
+        }
     }
 
     @PostMapping("/create-account")
     public ResponseEntity<Map<String, String>> accountCreated(@RequestBody UserDetails userDetails) {
-
-
         if (userDetails.getUsername() != null || userDetails.getPassword() != null) {
             userDetailsRepository.save(userDetails);
             return ResponseEntity.ok(Map.of("message", "Account successfully created"));
