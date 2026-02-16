@@ -1,0 +1,14 @@
+{
+    "configurations": [
+        {
+            "type": "java",
+            "name": "Spring Boot-TurtleApplication<Turtle>",
+            "request": "launch",
+            "cwd": "${workspaceFolder}",
+            "mainClass": "benpapouchado.Turtle.TurtleApplication",
+            "projectName": "Turtle",
+            "args": "",
+            "envFile": "${workspaceFolder}/.env"
+        }
+    ]
+}
