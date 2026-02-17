@@ -110,11 +110,3 @@ public class LoginController {
     }
 
 }
-
-//curl -X POST -H "Content-Type: application/json" -d '{"username":"Penicillin", "password":"F349jgxn*", "confirmPassword":"F349jgxn*" }' http://192.168.68.103:8080/users/update-password-request
-
-//curl -X POST -H "Content-Type: application/json" -d '{"username":"", "password":"F349jgxn*", "confirmPassword":"F349jgxn*" }' http://192.168.68.103:8080/users/update-password-request
-
-//curl -X POST -H "Content-Type: application/json" -d '{"username":"Peni", "password":"F349jgxn*", "confirmPassword":"F349jgxn*" }' http://192.168.68.103:8080/users/update-password-request
-
-//curl -X POST -H "Content-Type: application/json" -d '{"username":"Penicillin", "password":"F34gxn*", "confirmPassword":"F349jgxn*" }' http://192.168.68.103:8080/users/update-password-request
