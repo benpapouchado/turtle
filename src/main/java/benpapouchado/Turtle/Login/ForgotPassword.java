@@ -1,5 +1,7 @@
 package benpapouchado.Turtle.Login;
 
+import java.security.SecureRandom;
+
 public class ForgotPassword extends Login{
     private String confirmPassword;
 
@@ -17,7 +19,7 @@ public class ForgotPassword extends Login{
     }
 
     public String forgotPasswordHashPassword(String password) throws Exception{
-        return PasswordHandling.hashPassword(getPassword());
+        return PasswordHandling.hashPassword(password);
     }
 
     public boolean confirmPasswordsMatch() throws Exception{
@@ -29,6 +31,11 @@ public class ForgotPassword extends Login{
         boolean hashPasswordConfirmsMatch = PasswordHandling.verifyPassword(getConfirmPassword(), hashPassword);
 
         return stringPasswordsMatch && hashPasswordsMatch && hashPasswordConfirmsMatch;
+    }
+
+    public int generateCode(){
+        SecureRandom secureRandom = new SecureRandom();
+        return secureRandom.nextInt(10_000);
     }
 
     //TODO unit tests

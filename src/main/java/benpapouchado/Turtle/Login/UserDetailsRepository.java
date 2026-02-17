@@ -17,7 +17,7 @@ public interface UserDetailsRepository extends JpaRepository<UserDetails, Intege
 
     @Query("""
             UPDATE UserDetails u
-            SET u.password_hash = :newPasswordHash
+            SET u.password_hash = :password_hash
             WHERE u.username = :username
             """)
     void updatePassword(@Param("username") String username, @Param("password_hash") String password);
