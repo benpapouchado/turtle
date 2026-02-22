@@ -1,5 +1,9 @@
 package benpapouchado.Turtle.Login;
 
+import benpapouchado.Turtle.Login.Passwords.ChangePassword;
+import benpapouchado.Turtle.Login.Passwords.ForgotPassword;
+import benpapouchado.Turtle.Login.Passwords.PasswordHandling;
+import benpapouchado.Turtle.Login.Passwords.PasswordRepository;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -16,9 +20,11 @@ public class LoginController {
     }
 
     private final UserDetailsRepository userDetailsRepository;
+    private final PasswordRepository passwordRepository;
 
-    public LoginController(UserDetailsRepository userDetailsRepository) {
+    public LoginController(UserDetailsRepository userDetailsRepository, PasswordRepository passwordRepository) {
         this.userDetailsRepository = userDetailsRepository;
+        this.passwordRepository = passwordRepository;
     }
 
     @GetMapping("/people")
@@ -89,20 +95,40 @@ public class LoginController {
         if (forgotPassword.getPassword() != null && forgotPassword.getConfirmPassword() != null
                 && forgotPassword.confirmPasswordsMatch()) {
 
-            return ResponseEntity.ok(Map.of("message", "Deliver code",
-                    "code", String.format("%04d", forgotPassword.generateCode())));
+            int id = forgotPassword.generateCode();
+            String code =  String.format("%04d", forgotPassword.generateCode());
+            String old_password_hash = userDetailsRepository.extract_old_password(forgotPassword.getUsername());
+            String new_password_hash = PasswordHandling.hashPassword(forgotPassword.getPassword());
+
+            //In a real system this code would be entered into and read from a cache rather than the database
+
+            if(ForgotPassword.ensure_new_password(passwordRepository.findUserByUsername(forgotPassword.getUsername()),
+                    old_password_hash, new_password_hash)) {
+                passwordRepository.save(new ChangePassword(id, forgotPassword.getUsername(),
+                        new_password_hash, old_password_hash, code));
+            } else {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).
+                        body(Map.of("message", "Password already used. Choose a different one!"));
+            }
+
+            return ResponseEntity.ok(Map.of("message", "Deliver code ",
+                    "code", code,
+                    "id", String.valueOf(id)));
         } else {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).
                     body(Map.of("message", "Update Failed"));
         }
     }
 
-    @PostMapping("/update-password/{code}")
-    public ResponseEntity<Map<String, String>> updatePassword(@PathVariable String code,
-                                                              @RequestBody ForgotPassword forgotPassword) {
+    @PostMapping("/update-password/{id}/{code}")
+    public ResponseEntity<Map<String, String>> updatePassword(@PathVariable String code, @PathVariable String id,
+                                                              @RequestBody ForgotPassword forgotPassword) throws Exception {
+        String new_password_hash = PasswordHandling.hashPassword(forgotPassword.getPassword());
         if (code != null) {
-            if (Integer.parseInt(code) == 7391) {
-                userDetailsRepository.updatePassword(forgotPassword.getUsername(), forgotPassword.getPassword());
+            String match_code = String.valueOf(passwordRepository.fetch_code(Integer.parseInt(id), forgotPassword.getUsername()));
+            if (code.equals(match_code)) {
+                userDetailsRepository.updatePassword(forgotPassword.getUsername(), new_password_hash);
+                passwordRepository.update(Integer.parseInt(id), code, forgotPassword.getUsername());
                 return ResponseEntity.ok(Map.of("message", "Password updated successfully"));
             }
         }

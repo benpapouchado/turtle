@@ -1,8 +1,11 @@
-package benpapouchado.Turtle.Login;
+package benpapouchado.Turtle.Login.Passwords;
+
+import benpapouchado.Turtle.Login.Login;
 
 import java.security.SecureRandom;
+import java.util.List;
 
-public class ForgotPassword extends Login{
+public class ForgotPassword extends Login {
     private String confirmPassword;
 
     public ForgotPassword(String username, String password, String confirmPassword) {
@@ -36,6 +39,25 @@ public class ForgotPassword extends Login{
     public int generateCode(){
         SecureRandom secureRandom = new SecureRandom();
         return secureRandom.nextInt(10_000);
+    }
+
+    public static boolean ensure_new_password(List<ChangePassword> passwordList, String current_password, String new_password){
+        if(current_password.equals(new_password)){
+            return false;
+        }
+
+        for(ChangePassword changePassword :  passwordList){
+            if (changePassword.getOld_password_hash().equals(current_password) ||
+                    changePassword.getNew_password_hash().equals(current_password)){
+                return false;
+            }
+
+            if (changePassword.getOld_password_hash().equals(new_password) ||
+                    changePassword.getNew_password_hash().equals(new_password)){
+                return false;
+            }
+        }
+        return true;
     }
 
     //TODO unit tests

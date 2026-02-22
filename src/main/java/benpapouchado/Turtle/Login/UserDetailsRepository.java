@@ -1,6 +1,8 @@
 package benpapouchado.Turtle.Login;
 
+import jakarta.transaction.Transactional;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
@@ -15,6 +17,15 @@ public interface UserDetailsRepository extends JpaRepository<UserDetails, Intege
 
     UserDetails findUserByUsername(String username);
 
+    @Query("""
+            SELECT password_hash
+            FROM UserDetails
+            WHERE username = :username
+            """)
+    String extract_old_password(@Param("username") String username);
+
+    @Transactional
+    @Modifying
     @Query("""
             UPDATE UserDetails u
             SET u.password_hash = :password_hash

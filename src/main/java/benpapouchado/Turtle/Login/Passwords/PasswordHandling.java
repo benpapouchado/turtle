@@ -1,4 +1,4 @@
-package benpapouchado.Turtle.Login;
+package benpapouchado.Turtle.Login.Passwords;
 
 import java.security.SecureRandom;
 import java.security.spec.KeySpec;
