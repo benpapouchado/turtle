@@ -7,6 +7,7 @@ import benpapouchado.Turtle.Login.Passwords.PasswordRepository;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 import java.util.Map;
@@ -35,7 +36,7 @@ public class LoginController {
     @GetMapping("/username-exists/{username}")
     public ResponseEntity<Map<String, String>> usernameTaken(@PathVariable String username) {
         if (username == null) {
-            return ResponseEntity.ok(Map.of("message", "Username check cannot pass null values"));
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Username check cannot pass null values");
         } else {
             int count = userDetailsRepository.usernameExists(username);
             return ResponseEntity.ok(Map.of("is_available", count == 0 ? "true" : "false"));
@@ -45,7 +46,7 @@ public class LoginController {
     @GetMapping("/password-is-strong/{password}")
     public ResponseEntity<Map<String, String>> passwordStrongEnough(@PathVariable String password) {
         if (password == null) {
-            return ResponseEntity.ok(Map.of("message", "Password check cannot pass null values"));
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Password check cannot pass null values");
         } else {
             boolean password_strength = PasswordHandling.isStrongPassword(password);
             return ResponseEntity.ok(Map.of("password_is_strong", password_strength ? "true" : "false"));
@@ -59,19 +60,25 @@ public class LoginController {
             userDetailsRepository.save(userDetails);
             return ResponseEntity.ok(Map.of("message", "Account successfully created"));
         } else {
-            return ResponseEntity.ok(Map.of("message", "Account creation failed"));
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body( //400
+                    (Map.of("message", "Account creation failed")));
         }
     }
 
     @PostMapping("/login")
     public ResponseEntity<Map<String, String>> authenticateUserDetails(@RequestBody Login login) throws Exception {
         UserDetails user = userDetailsRepository.findUserByUsername(login.getUsername().trim());
-        if (user != null &&
-                PasswordHandling.verifyPassword(login.getPassword(), user.getPassword_hash())) {
-            return ResponseEntity.ok(Map.of("message", "Successful login"));
+
+        if (user != null) {
+            if(PasswordHandling.verifyPassword(login.getPassword(), user.getPassword_hash())) {
+                return ResponseEntity.ok(Map.of("message", "Successful login"));
+            } else {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(
+                    Map.of("message", "Unauthorised login"));
+            }
         } else {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(
-                    Map.of("message", "Unauthorised login info"));
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
+                    Map.of("message", "Frog does not exist"));
         }
     }
 
@@ -107,7 +114,7 @@ public class LoginController {
                 passwordRepository.save(new ChangePassword(id, forgotPassword.getUsername(),
                         new_password_hash, old_password_hash, code));
             } else {
-                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED). //401
                         body(Map.of("message", "Password already used. Choose a different one!"));
             }
 
@@ -115,7 +122,7 @@ public class LoginController {
                     "code", code,
                     "id", String.valueOf(id)));
         } else {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED). //401
                     body(Map.of("message", "Update Failed"));
         }
     }
@@ -130,9 +137,13 @@ public class LoginController {
                 userDetailsRepository.updatePassword(forgotPassword.getUsername(), new_password_hash);
                 passwordRepository.update(Integer.parseInt(id), code, forgotPassword.getUsername());
                 return ResponseEntity.ok(Map.of("message", "Password updated successfully"));
+            } else {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED). //401
+                        body(Map.of("message", "Code didn't match"));
             }
         }
-        return ResponseEntity.ok(Map.of("message", "Password update failed."));
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST). //400
+                body(Map.of("message", "Update Failed"));
     }
 
 }
