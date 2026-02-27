@@ -32,8 +32,11 @@ public class UserDetails {
 
     public UserDetails(String name, String username, String password_hash, Date date_of_birth) {
         this.name = name;
-        this.username = username;
-        this.password_hash = password_hash;
+        this.date_of_birth = date_of_birth;
+    }
+
+    public UserDetails(String name, Date date_of_birth) {
+        this.name = name;
         this.date_of_birth = date_of_birth;
     }
 

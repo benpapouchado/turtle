@@ -57,9 +57,22 @@ public class ChangePassword {
         this.code = code;
     }
 
+    public ChangePassword(int id, String code){
+        this.id = id;
+        this.code = code;
+    }
+
     public ChangePassword(String new_password_hash, String old_password_hash){
         this.new_password_hash = new_password_hash;
         this.old_password_hash = old_password_hash;
+    }
+
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
     }
 
     public String getUsername() {

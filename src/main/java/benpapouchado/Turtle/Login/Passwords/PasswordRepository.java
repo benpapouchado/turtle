@@ -15,7 +15,7 @@ public interface PasswordRepository extends JpaRepository<ChangePassword, Intege
             WHERE username = :username
             AND id = :id
             """)
-    int fetch_code(@Param("id") int id, @Param("username") String username);
+    String fetch_code(@Param("id") int id, @Param("username") String username);
 
     @Transactional
     @Modifying

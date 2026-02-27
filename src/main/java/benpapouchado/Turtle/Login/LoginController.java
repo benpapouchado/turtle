@@ -4,11 +4,16 @@ import benpapouchado.Turtle.Login.Passwords.ChangePassword;
 import benpapouchado.Turtle.Login.Passwords.ForgotPassword;
 import benpapouchado.Turtle.Login.Passwords.PasswordHandling;
 import benpapouchado.Turtle.Login.Passwords.PasswordRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.util.Arrays;
+import java.util.Base64;
 import java.util.List;
 import java.util.Map;
 
@@ -22,6 +27,7 @@ public class LoginController {
 
     private final UserDetailsRepository userDetailsRepository;
     private final PasswordRepository passwordRepository;
+    private static final Logger logger = LoggerFactory.getLogger(LoginController.class);
 
     public LoginController(UserDetailsRepository userDetailsRepository, PasswordRepository passwordRepository) {
         this.userDetailsRepository = userDetailsRepository;
@@ -33,30 +39,55 @@ public class LoginController {
         return this.userDetailsRepository.findAll();
     }
 
-    @GetMapping("/username-exists/{username}")
-    public ResponseEntity<Map<String, String>> usernameTaken(@PathVariable String username) {
-        if (username == null) {
+    @GetMapping("/username-exists")
+    public ResponseEntity<Map<String, String>> usernameTaken(@RequestHeader (HttpHeaders.AUTHORIZATION) String auth) {
+        String username = extract_basic_auth(auth)[0];
+
+        if (auth == null) {
+            logger.error("Username check cannot pass null values");
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Username check cannot pass null values");
         } else {
             int count = userDetailsRepository.usernameExists(username);
-            return ResponseEntity.ok(Map.of("is_available", count == 0 ? "true" : "false"));
+            if(count == 0) {
+                logger.info("Username is available");
+                return ResponseEntity.ok(Map.of("is_available","true"));
+            } else {
+                logger.info("Username is not available");
+                return ResponseEntity.ok(Map.of("is_available","false"));
+            }
         }
     }
 
-    @GetMapping("/password-is-strong/{password}")
-    public ResponseEntity<Map<String, String>> passwordStrongEnough(@PathVariable String password) {
-        if (password == null) {
+    @GetMapping("/password-is-strong")
+    public ResponseEntity<Map<String, String>> passwordStrongEnough(@RequestHeader (HttpHeaders.AUTHORIZATION) String auth) {
+        String password = extract_basic_auth(auth)[0];
+        if (auth == null) {
+            logger.error("Null value entered");
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Password check cannot pass null values");
         } else {
             boolean password_strength = PasswordHandling.isStrongPassword(password);
-            return ResponseEntity.ok(Map.of("password_is_strong", password_strength ? "true" : "false"));
+
+            if(password_strength){
+                logger.info("Password entered is strong enough");
+                return ResponseEntity.ok(Map.of("password_is_strong", "true"));
+            } else {
+                logger.info("Password is weak");
+                return ResponseEntity.ok(Map.of("password_is_strong", "false"));
+            }
         }
     }
 
     @PostMapping("/create-account")
-    public ResponseEntity<Map<String, String>> accountCreated(@RequestBody UserDetails userDetails) throws Exception {
-        if (userDetails.getUsername() != null || userDetails.getPasswordHash() != null) {
-            userDetails.setPassword_hash(PasswordHandling.hashPassword(userDetails.getPasswordHash()));
+    public ResponseEntity<Map<String, String>> accountCreated(@RequestHeader (HttpHeaders.AUTHORIZATION) String auth,
+                                                              @RequestBody UserDetails userDetails) throws Exception {
+        String[] decode = extract_basic_auth(auth);
+        String username = decode[0];
+        String password = decode[1];
+
+        if (username != null || password != null) {
+            logger.info(Arrays.toString(decode));
+            userDetails.setPassword_hash(PasswordHandling.hashPassword(password));
+            userDetails.setUsername(username);
             userDetailsRepository.save(userDetails);
             return ResponseEntity.ok(Map.of("message", "Account successfully created"));
         } else {
@@ -66,11 +97,15 @@ public class LoginController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<Map<String, String>> authenticateUserDetails(@RequestBody Login login) throws Exception {
-        UserDetails user = userDetailsRepository.findUserByUsername(login.getUsername().trim());
+    public ResponseEntity<Map<String, String>> authenticateUserDetails(@RequestHeader (HttpHeaders.AUTHORIZATION) String auth)
+            throws Exception {
+        String[] decode = extract_basic_auth(auth);
+        String username = decode[0];
+        String password = decode[1];
+        UserDetails user = userDetailsRepository.findUserByUsername(username.trim());
 
         if (user != null) {
-            if(PasswordHandling.verifyPassword(login.getPassword(), user.getPassword_hash())) {
+            if(PasswordHandling.verifyPassword(password, user.getPassword_hash())) {
                 return ResponseEntity.ok(Map.of("message", "Successful login"));
             } else {
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(
@@ -83,67 +118,107 @@ public class LoginController {
     }
 
     @PostMapping("/update-password-request")
-    public ResponseEntity<Map<String, String>> updatePasswordRequest(@RequestBody ForgotPassword forgotPassword)
+    public ResponseEntity<Map<String, String>> updatePasswordRequest(@RequestHeader (HttpHeaders.AUTHORIZATION) String auth)
             throws Exception {
+        String[] decode = extract_basic_auth(auth);
+        String username = decode[0];
+        String password = decode[1];
+        String confirm_password = decode[2];
+        ForgotPassword forgotPassword = new ForgotPassword(username, password, confirm_password);
 
-        if (forgotPassword.getUsername() == null || forgotPassword.getUsername().isBlank()) {
-
+        if (username== null || username.isBlank()) {
+            logger.error("Enter username");
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                     .body(Map.of("message", "Username is required"));
         }
 
-        UserDetails user = userDetailsRepository.findUserByUsername(forgotPassword.getUsername());
+        UserDetails user = userDetailsRepository.findUserByUsername(username);
 
         if (user == null) {
+            logger.error("Frog does not exist or incorrect password");
             return ResponseEntity.status(HttpStatus.NOT_FOUND).
-                    body(Map.of("message", "Frog does not exist"));
+                    body(Map.of("message", "Frog does not exist or incorrect password"));
         }
 
-        if (forgotPassword.getPassword() != null && forgotPassword.getConfirmPassword() != null
+        if (password != null && confirm_password != null
                 && forgotPassword.confirmPasswordsMatch()) {
 
             int id = forgotPassword.generateCode();
             String code =  String.format("%04d", forgotPassword.generateCode());
-            String old_password_hash = userDetailsRepository.extract_old_password(forgotPassword.getUsername());
-            String new_password_hash = PasswordHandling.hashPassword(forgotPassword.getPassword());
+            String old_password_hash = userDetailsRepository.extract_old_password(username);
+            String new_password_hash = PasswordHandling.hashPassword(password);
 
             //In a real system this code would be entered into and read from a cache rather than the database
 
-            if(ForgotPassword.ensure_new_password(passwordRepository.findUserByUsername(forgotPassword.getUsername()),
+            if(ForgotPassword.ensure_new_password(passwordRepository.findUserByUsername(username),
                     old_password_hash, new_password_hash)) {
-                passwordRepository.save(new ChangePassword(id, forgotPassword.getUsername(),
+                passwordRepository.save(new ChangePassword(id, username,
                         new_password_hash, old_password_hash, code));
             } else {
+                logger.warn("Can't repeat an already used password.");
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED). //401
                         body(Map.of("message", "Password already used. Choose a different one!"));
             }
 
+            logger.info("Enter Code to proceed");
             return ResponseEntity.ok(Map.of("message", "Deliver code ",
                     "code", code,
                     "id", String.valueOf(id)));
         } else {
+            logger.error("Update Failed");
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED). //401
                     body(Map.of("message", "Update Failed"));
         }
     }
 
-    @PostMapping("/update-password/{id}/{code}")
-    public ResponseEntity<Map<String, String>> updatePassword(@PathVariable String code, @PathVariable String id,
-                                                              @RequestBody ForgotPassword forgotPassword) throws Exception {
-        String new_password_hash = PasswordHandling.hashPassword(forgotPassword.getPassword());
-        if (code != null) {
-            String match_code = String.valueOf(passwordRepository.fetch_code(Integer.parseInt(id), forgotPassword.getUsername()));
-            if (code.equals(match_code)) {
-                userDetailsRepository.updatePassword(forgotPassword.getUsername(), new_password_hash);
-                passwordRepository.update(Integer.parseInt(id), code, forgotPassword.getUsername());
+    @PostMapping("/update-password")
+    public ResponseEntity<Map<String, String>> updatePassword(@RequestBody ChangePassword changePassword,
+                                                              @RequestHeader (HttpHeaders.AUTHORIZATION) String auth)
+            throws Exception {
+        String[] decode = extract_basic_auth(auth);
+        String username = decode[0];
+        String password = decode[1];
+        String OTP_code = decode[2];
+        String new_password_hash = PasswordHandling.hashPassword(password);
+        logger.info(username + " " + changePassword.getId() + " " + OTP_code + changePassword.getCode());
+        if (changePassword.getCode() != null) {
+
+            String match_code = passwordRepository.fetch_code(changePassword.getId(), username);
+            logger.info(username + " " + changePassword.getId() + " id " + match_code + " " + OTP_code);
+            if (OTP_code.equals(match_code)) {
+                userDetailsRepository.updatePassword(username, new_password_hash);
+                passwordRepository.update(changePassword.getId(), changePassword.getCode(), username);
+                logger.info("Password update successful");
                 return ResponseEntity.ok(Map.of("message", "Password updated successfully"));
             } else {
+                logger.warn("Code didn't match. Try again");
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED). //401
                         body(Map.of("message", "Code didn't match"));
             }
         }
+        logger.error("Failed");
         return ResponseEntity.status(HttpStatus.BAD_REQUEST). //400
                 body(Map.of("message", "Update Failed"));
     }
 
+    public static String base64_decode(String header){
+        if(header != null){
+            byte[] decodedBytes = Base64.getDecoder().decode(header);
+            return new String(decodedBytes);
+        }
+        return "";
+    }
+
+    public static String[] extract_basic_auth(String header){
+        if(header != null && header.startsWith("Basic ")){
+            String base64Credentials = header.substring(6);
+            String[] credentials = base64_decode(base64Credentials).split(":");
+
+            for (int i = 0; i < credentials.length; i++) {
+                credentials[i] = base64_decode(credentials[i]);
+            }
+            return credentials;
+        }
+        return new String[0];
+    }
 }
