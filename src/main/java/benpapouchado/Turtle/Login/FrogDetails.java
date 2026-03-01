@@ -11,7 +11,7 @@ import java.sql.Date;
 @Getter
 @Setter
 @Table(name = "frog_details", schema = "public")
-public class UserDetails {
+public class FrogDetails {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -30,17 +30,17 @@ public class UserDetails {
     @Column(name = "date_of_birth")
     private Date date_of_birth;
 
-    public UserDetails(String name, String username, String password_hash, Date date_of_birth) {
+    public FrogDetails(String name, String username, String password_hash, Date date_of_birth) {
         this.name = name;
         this.date_of_birth = date_of_birth;
     }
 
-    public UserDetails(String name, Date date_of_birth) {
+    public FrogDetails(String name, Date date_of_birth) {
         this.name = name;
         this.date_of_birth = date_of_birth;
     }
 
-    public UserDetails(){}
+    public FrogDetails(){}
 
     public String getName() {
         return name;

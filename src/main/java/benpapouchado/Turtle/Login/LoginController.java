@@ -35,7 +35,7 @@ public class LoginController {
     }
 
     @GetMapping("/people")
-    public List<UserDetails> findAllUsers() {
+    public List<FrogDetails> findAllUsers() {
         return this.userDetailsRepository.findAll();
     }
 
@@ -79,16 +79,16 @@ public class LoginController {
 
     @PostMapping("/create-account")
     public ResponseEntity<Map<String, String>> accountCreated(@RequestHeader (HttpHeaders.AUTHORIZATION) String auth,
-                                                              @RequestBody UserDetails userDetails) throws Exception {
+                                                              @RequestBody FrogDetails frogDetails) throws Exception {
         String[] decode = extract_basic_auth(auth);
         String username = decode[0];
         String password = decode[1];
 
         if (username != null || password != null) {
             logger.info(Arrays.toString(decode));
-            userDetails.setPassword_hash(PasswordHandling.hashPassword(password));
-            userDetails.setUsername(username);
-            userDetailsRepository.save(userDetails);
+            frogDetails.setPassword_hash(PasswordHandling.hashPassword(password));
+            frogDetails.setUsername(username);
+            userDetailsRepository.save(frogDetails);
             return ResponseEntity.ok(Map.of("message", "Account successfully created"));
         } else {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body( //400
@@ -102,7 +102,7 @@ public class LoginController {
         String[] decode = extract_basic_auth(auth);
         String username = decode[0];
         String password = decode[1];
-        UserDetails user = userDetailsRepository.findUserByUsername(username.trim());
+        FrogDetails user = userDetailsRepository.findUserByUsername(username.trim());
 
         if (user != null) {
             if(PasswordHandling.verifyPassword(password, user.getPassword_hash())) {
@@ -132,7 +132,7 @@ public class LoginController {
                     .body(Map.of("message", "Username is required"));
         }
 
-        UserDetails user = userDetailsRepository.findUserByUsername(username);
+        FrogDetails user = userDetailsRepository.findUserByUsername(username);
 
         if (user == null) {
             logger.error("Frog does not exist or incorrect password");

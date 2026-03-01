@@ -6,20 +6,20 @@ import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
-public interface UserDetailsRepository extends JpaRepository<UserDetails, Integer> {
+public interface UserDetailsRepository extends JpaRepository<FrogDetails, Integer> {
 
     @Query("""
             SELECT COUNT(u)
-            FROM UserDetails u
+            FROM FrogDetails u
             WHERE LOWER(u.username) = LOWER(:username)
             """)
     int usernameExists(@Param("username") String username);
 
-    UserDetails findUserByUsername(String username);
+    FrogDetails findUserByUsername(String username);
 
     @Query("""
             SELECT password_hash
-            FROM UserDetails
+            FROM FrogDetails
             WHERE username = :username
             """)
     String extract_old_password(@Param("username") String username);
@@ -27,7 +27,7 @@ public interface UserDetailsRepository extends JpaRepository<UserDetails, Intege
     @Transactional
     @Modifying
     @Query("""
-            UPDATE UserDetails u
+            UPDATE FrogDetails u
             SET u.password_hash = :password_hash
             WHERE u.username = :username
             """)
